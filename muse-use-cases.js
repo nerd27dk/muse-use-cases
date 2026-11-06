@@ -9,7 +9,7 @@
    crowd-sourced cases, approved community submissions and anything the guide
    adds later - is served by the everyai-use-cases worker and fetched at
    runtime. Snapshot 2026-09-18, regenerated 2026-11-06 from live API output
-   (the original muse.ai share is dead).
+   (the original muse.ai share is dead) by scripts/export-oss.mjs.
    ================================================================ */
 
 'use strict';

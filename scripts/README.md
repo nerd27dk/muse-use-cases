@@ -1,5 +1,22 @@
 # scripts
 
+## export-oss.mjs — refresh the published bundles
+
+Regenerates `worker/src/data/field-guide.js` and `muse-use-cases.js` from the
+live worker API, refreshes the headline numbers in `README.md`, then verifies
+both bundles import and merge cleanly. Only case arrays, snapshots and header
+comments change — meta, master prompt, loops and guardrails are preserved.
+
+```bash
+node scripts/export-oss.mjs                 # refresh from live API
+node scripts/export-oss.mjs --api <url>     # refresh from another worker
+node scripts/export-oss.mjs --from api.json # refresh from saved API output
+node scripts/export-oss.mjs --check         # validate only (exit 1 if stale)
+```
+
+Run it whenever the live library moves, then commit the result. Re-running on
+unchanged data produces zero diff.
+
 ## build-muse-site.mjs — publish the standalone Muse site
 
 `use-cases.html` normally lives inside the EveryAI site, where sibling links

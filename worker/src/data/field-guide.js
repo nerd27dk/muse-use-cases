@@ -5,9 +5,10 @@
    fetched from a feed – they're bundled with the worker and become the
    base of the merged library that /api/use-cases serves.
 
-   Regenerated 2026-11-06 from the live worker API output: the original
-   muse.ai share is dead, so the last live snapshot is the source now.
-   Cases keep their origins arrays as served (guide + merged crowd data).
+   Regenerated from the live worker API output by scripts/export-oss.mjs
+   on 2026-11-06: the original muse.ai share is dead, so the last live
+   snapshot is the source now. Cases keep their origins arrays as served
+   (guide + merged crowd data).
 
    The master prompt, patterns and guardrails travel with them because
    the capability pack handed to a Muse agent is built from all of it.
