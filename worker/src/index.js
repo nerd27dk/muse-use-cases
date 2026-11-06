@@ -77,7 +77,7 @@ export default {
     if (url.pathname === '/' || url.pathname === '') {
       return json({
         name: 'everyai-use-cases',
-        repo: 'https://github.com/everyai-com/muse-use-cases',
+        repo: 'https://github.com/nerd27dk/muse-use-cases',
         endpoints: {
           library: '/api/use-cases',
           status: '/api/status',

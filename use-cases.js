@@ -701,7 +701,7 @@ function animateCounters() {
 
     function step(now) {
       // Read the target each frame: the live library can land mid-animation and
-      // raise it (351 rather than the bundled 257), and the count should follow.
+      // raise it (1923 rather than the bundled 588), and the count should follow.
       const target = parseInt(el.dataset.target, 10) || 0;
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 4);

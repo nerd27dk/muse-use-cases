@@ -1,7 +1,7 @@
 # Muse Use Cases
 
 A working field guide to what people actually run with [Muse](https://ai.meta.com/muse/), Meta's personal
-AI agent — **351 real use cases, 257 of them with the exact prompt that ran the job**, plus a
+AI agent — **1923 real use cases, 633 of them with the exact prompt that ran the job**, plus a
 **capability pack** you can hand to an agent in a single paste so it knows what it can do for you.
 
 Live: **[muse.every-ai.com](https://muse.every-ai.com)**
@@ -37,7 +37,7 @@ library instead of waiting to be told:
 
 > You are Muse. Before we start, load your capability pack and make it your playbook:
 > `https://everyai-use-cases.everyai-com.workers.dev/muse/capabilities.md`
-> It covers 351 real use cases you can run end to end — 257 with the exact prompt …
+> It covers 1923 real use cases you can run end to end — 633 with the exact prompt …
 
 ## Run it
 
@@ -90,7 +90,8 @@ significant token. When they merge, the copy carrying a runnable prompt wins.
 
 ## Credits
 
-Cases come from the [Muse use cases field guide](https://muse.ai/s/muse-use-cases-xuxf6fkdeq4oxw),
+Cases come from the [Muse use cases field guide](https://muse.ai/s/muse-use-cases-xuxf6fkdeq4oxw)
+(share offline since ~Oct 2026; guide cases preserved from the 2026-09-18 snapshot),
 [musecases.netlify.app](https://musecases.netlify.app), [botdirectory.ai](https://botdirectory.ai) and
 people who send them in. Every case keeps a link to the post it came from. Prompts are user-generated
 and unverified — read before you run. Not affiliated with Meta.

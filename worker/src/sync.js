@@ -22,8 +22,10 @@ export const STATUS_KEY = 'status:v2';
 const CROWD_FEED = 'https://musecases.netlify.app/usecases.json';
 const CROWD_SOURCE_NAME = 'musecases.netlify.app';
 
-// The field guide keeps growing (185 → 257 cases within weeks of launch), so
+// The field guide kept growing (257 → 588 cases by mid-September), so
 // it is fetched live; the bundled copy in data/field-guide.js is the fallback.
+// Note: the muse.ai share has been offline since ~Oct 2026, so the bundled
+// snapshot currently serves as the guide source.
 // The host only serves the app to framed requests, hence the Sec-Fetch headers.
 const FIELD_GUIDE_URL = 'https://muse-use-cases-xuxf6fkdeq4oxw.cf.metaaiusercontent.com/index.html';
 const FIELD_GUIDE_REFERER = 'https://muse.ai/s/muse-use-cases-xuxf6fkdeq4oxw';
