@@ -2,7 +2,7 @@
 // Test runner for compare-snapshots.mjs. Executable assertions, no deps.
 // Run: node tests/run-tests.mjs   (from the branch root)
 import { execFileSync } from 'node:child_process';
-import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -126,6 +126,23 @@ const big = { counts: { total: 2000 }, refreshedAt: 't', version: 1, agent: { na
 const bigOut = execFileSync('node', [script, '--fingerprint', w('big.json', big)], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const bigFp = JSON.parse(bigOut); // JSON.parse throws on a truncated stream
 T('16 large pipe-consumed fingerprint is complete and parseable', bigFp.case_count === 2000 && bigOut.length > 1000000 && bigOut.endsWith('}\n'));
+
+// 22. P2 regression: a large comparison diff must be COMPLETE through a pipe (exit 1, valid JSON)
+const bigChanged = { ...big, cases: big.cases.map(c => ({ ...c, title: c.title + '-edited', story: 'x'.repeat(500) })) };
+const diffOut = (() => { try { return execFileSync('node', [script, w('big.json', big), w('big2.json', bigChanged)], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] }); }
+  catch (e) { if (e.status !== 1) throw e; return e.stdout; } })(); // exit 1 = differences found, still a full report
+const diffJson = JSON.parse(diffOut); // throws on a truncated stream
+T('22 large pipe-consumed comparison diff is complete and parseable', diffJson.changed.length === 2000 && diffOut.length > 65536 && diffOut.endsWith('}\n'));
+
+// 23. --md report through a pipe is complete too (same emit path)
+const mdOut = (() => { try { return execFileSync('node', [script, w('big.json', big), w('big2.json', bigChanged), '--md'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] }); }
+  catch (e) { if (e.status !== 1) throw e; return e.stdout; } })();
+T('23 large pipe-consumed --md report is complete', mdOut.endsWith('\n') && mdOut.includes('- crowd:1999') && mdOut.includes('- crowd:0:'));
+
+// 24. RUNBOOK consistency: fingerprint case_count is checked against the captured cases count,
+// not against upstream counts.total (envelope mismatch is an annotation, never a corruption verdict)
+const runbook = readFileSync(new URL('../RUNBOOK.md', import.meta.url), 'utf8');
+T('24 RUNBOOK checks case_count against captured cases, not counts.total', runbook.includes('do NOT regenerate') && !runbook.includes('`case_count` equals the `counts.total`'));
 
 // 16. duplicate IDs fail in fingerprint mode too (same validated load)
 let threw = false;

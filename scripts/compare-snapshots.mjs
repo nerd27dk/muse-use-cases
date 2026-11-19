@@ -24,6 +24,31 @@
 import { readFileSync, writeSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
+// Emit final output, then exit. console.log + process.exit can truncate a
+// large payload consumed through a pipe (queued async writes are dropped),
+// and a single writeSync is not enough either: it may return short on a
+// partial write and throws EAGAIN on a non-blocking pipe. writeAllSync loops
+// until every byte is out; a real error (e.g. EPIPE, consumer gone) propagates
+// and yields a nonzero exit instead of silent success.
+function writeAllSync(fd, str) {
+  const buf = Buffer.from(str.endsWith('\n') ? str : str + '\n');
+  let off = 0;
+  while (off < buf.length) {
+    try {
+      const n = writeSync(fd, buf.subarray(off));
+      if (n <= 0) throw new Error(`write to fd ${fd} returned ${n}`);
+      off += n;
+    } catch (err) {
+      if (err && err.code === 'EAGAIN') { // non-blocking pipe momentarily full: wait, retry
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20);
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+const emit = (str, code, fd = 1) => { writeAllSync(fd, str); process.exit(code); };
+
 const args = process.argv.slice(2);
 const flags = args.filter(a => a.startsWith('--'));
 const paths = args.filter(a => !a.startsWith('--'));
@@ -31,7 +56,7 @@ const usage = 'usage: compare-snapshots.mjs <old.json> <new.json> [--md]\n' +
   '       compare-snapshots.mjs --fingerprint <snapshot.json>   (print public-safe per-field hash map)';
 if (flags.some(f => f !== '--md' && f !== '--fingerprint') ||
     (flags.includes('--fingerprint') ? (paths.length !== 1 || flags.includes('--md')) : paths.length !== 2)) {
-  console.error(usage); process.exit(2);
+  emit(usage, 2, 2);
 }
 const [oldPath, newPath] = paths;
 const errors = [];
@@ -99,8 +124,8 @@ const load = (p, label) => {
 // malformed input fail exactly as in comparison mode.
 if (flags.includes('--fingerprint')) {
   const S = load(paths[0], 'input');
-  if (errors.length) { console.log(JSON.stringify({ errors }, null, 2)); process.exit(2); }
-  if (S.fingerprint) { console.log(JSON.stringify({ errors: ['input is already a fingerprint'] }, null, 2)); process.exit(2); }
+  if (errors.length) emit(JSON.stringify({ errors }, null, 2), 2);
+  if (S.fingerprint) emit(JSON.stringify({ errors: ['input is already a fingerprint'] }, null, 2), 2);
   const out = {
     format: 'use-cases-fingerprint/1',
     raw_sha256: sha256(paths[0]),
@@ -111,14 +136,12 @@ if (flags.includes('--fingerprint')) {
     cases: Object.fromEntries([...S.map.entries()].sort(([a], [b]) => a < b ? -1 : 1).map(([id, c]) => [id,
       Object.fromEntries(Object.keys(c).filter(k => k !== 'id').sort().map(k => [k, sha256buf(canonField(k, c[k]))]))])),
   };
-  writeSync(1, JSON.stringify(out, null, 2) + '\n');
-  process.exit(0);
+  emit(JSON.stringify(out, null, 2), 0);
 }
 const oldS = load(oldPath, 'old'), newS = load(newPath, 'new');
-if (errors.length) { console.log(JSON.stringify({ errors }, null, 2)); process.exit(2); }
+if (errors.length) emit(JSON.stringify({ errors }, null, 2), 2);
 if (oldS.fingerprint !== newS.fingerprint) {
-  console.log(JSON.stringify({ errors: ['cannot compare a raw snapshot against a fingerprint; fingerprint both sides first'] }, null, 2));
-  process.exit(2);
+  emit(JSON.stringify({ errors: ['cannot compare a raw snapshot against a fingerprint; fingerprint both sides first'] }, null, 2), 2);
 }
 
 const allFields = [...new Set([...oldS.map.values(), ...newS.map.values()].flatMap(c => Object.keys(c)))].sort();
@@ -163,6 +186,7 @@ const report = {
   envelope_changes,
   note: 'envelope_changes (e.g. refreshedAt) never affect the case verdict or the exit code',
 };
+const rc = added.length || removed.length || changed.length ? 1 : 0;
 if (flags.includes('--md')) {
   const fmt = c => `- ${c.id}: ` + c.fields.map(f => f.kind === 'changed' ? f.field : `${f.field} (${f.kind})`).join(', ');
   const L = [
@@ -177,8 +201,7 @@ if (flags.includes('--md')) {
     `## Removed IDs`, ...(removed.length ? removed.map(r => `- ${r}`) : ['- (none)']), ``,
     `## Changed IDs`, ...(changed.length ? changed.map(fmt) : ['- (none)']),
   ];
-  console.log(L.join('\n'));
+  emit(L.join('\n'), rc);
 } else {
-  console.log(JSON.stringify(report, null, 2));
+  emit(JSON.stringify(report, null, 2), rc);
 }
-process.exit(added.length || removed.length || changed.length ? 1 : 0);
