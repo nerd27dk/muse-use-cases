@@ -118,6 +118,15 @@ for (const [name, of, nf] of pairs) {
 }
 T('15 fingerprint diff agrees with raw diff on all fixture pairs', agree || (console.log('   mismatch on', detail), false));
 
+// 16. P2 regression: a large fingerprint must be COMPLETE when stdout is consumed through a pipe
+const big = { counts: { total: 2000 }, refreshedAt: 't', version: 1, agent: { name: 'x' },
+  cases: Array.from({ length: 2000 }, (_, i) => ({ id: 'crowd:' + i, title: 'T'.repeat(40) + i, category: 'Work',
+    prompt: 'p'.repeat(200), description: 'd'.repeat(200), story: 's'.repeat(400), sourceHandle: 'h'.repeat(30),
+    sourceUrl: null, sourceName: 'n', hasPrompt: true, addedAt: null, origins: ['crowd'] })) };
+const bigOut = execFileSync('node', [script, '--fingerprint', w('big.json', big)], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const bigFp = JSON.parse(bigOut); // JSON.parse throws on a truncated stream
+T('16 large pipe-consumed fingerprint is complete and parseable', bigFp.case_count === 2000 && bigOut.length > 1000000 && bigOut.endsWith('}\n'));
+
 // 16. duplicate IDs fail in fingerprint mode too (same validated load)
 let threw = false;
 try { execFileSync('node', [script, '--fingerprint', w('dup.json', { cases: [A, A] })], { encoding: 'utf8', stdio: 'pipe' }); }

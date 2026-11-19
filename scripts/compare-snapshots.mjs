@@ -21,7 +21,7 @@
 //   never set the exit code: a new `refreshedAt` alone is not content drift.
 //
 // Exit: 0 = no case differences, 1 = case differences found, 2 = bad input.
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 const args = process.argv.slice(2);
@@ -111,7 +111,7 @@ if (flags.includes('--fingerprint')) {
     cases: Object.fromEntries([...S.map.entries()].sort(([a], [b]) => a < b ? -1 : 1).map(([id, c]) => [id,
       Object.fromEntries(Object.keys(c).filter(k => k !== 'id').sort().map(k => [k, sha256buf(canonField(k, c[k]))]))])),
   };
-  console.log(JSON.stringify(out, null, 2));
+  writeSync(1, JSON.stringify(out, null, 2) + '\n');
   process.exit(0);
 }
 const oldS = load(oldPath, 'old'), newS = load(newPath, 'new');
