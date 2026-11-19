@@ -59,6 +59,19 @@ Point the page at a local worker without editing code:
 localStorage.setItem('everyai_uc_api', 'http://127.0.0.1:8787');
 ```
 
+## Keeping the dataset fresh (maintainers)
+
+Two procedures, read in this order; each step names its readiness gate and where
+to stop for the owner's explicit GO:
+
+1. `RUNBOOK.md` - dataset refresh: capture the upstream API, keep the raw
+   PRIVATE, publish only fingerprints (`snapshots/`) and diff reports (`diffs/`).
+2. `docs/CASES-BATCH-LIFECYCLE.md` - what happens after a diff: triage,
+   independent editorial review of the final set, private reviewed archive,
+   the GO-gated RAISE import, live verification and the journal.
+
+Shared rules (identities, GO gates, PR order, Codex review): `AGENTS.md`.
+
 ## API
 
 | Endpoint | Returns |

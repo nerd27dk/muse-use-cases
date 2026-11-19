@@ -1,6 +1,6 @@
 # Dataset refresh runbook (muse-use-cases)
 
-How to refresh our picture of the upstream use-case library and see exactly what changed. Repeatable without any chat history. Scope: the dataset refresh only - nothing here publishes anything to RAISE or changes existing repo files.
+How to refresh our picture of the upstream use-case library and see exactly what changed. Repeatable without any chat history. Scope: the dataset refresh only - nothing here publishes anything to RAISE or changes existing repo files. What happens after the diff - triage, editorial review, the RAISE import and live verification - is `docs/CASES-BATCH-LIFECYCLE.md`; shared agent rules are `AGENTS.md`.
 
 ## Data classes
 
