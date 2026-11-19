@@ -1,0 +1,4 @@
+{"version":1,"refreshedAt":"2026-01-02T00:00:00Z","cases":[
+ {"id":"guide:a","title":"Same","category":"Work","prompt":"p","description":null,"story":"s","sourceHandle":"@x","sourceUrl":"https://x.com/x/status/1","sourceName":"g","hasPrompt":true,"addedAt":null,"origins":["field-guide"]},
+ {"id":"crowd:1","title":"New title","category":"Money","prompt":null,"description":"d","story":null,"sourceHandle":"@y","sourceUrl":"https://x.com/y/status/2","sourceName":"c","hasPrompt":false,"addedAt":null,"origins":["musecases.netlify.app"]},
+ {"id":"submission:new","title":"Fresh","category":"Travel","prompt":null,"description":"d","story":null,"sourceHandle":"@w","sourceUrl":"https://x.com/w/status/4","sourceName":"community submission","hasPrompt":false,"addedAt":"2026-01-02T00:00:00Z","origins":["community"]}]}
